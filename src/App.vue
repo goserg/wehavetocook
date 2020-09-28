@@ -1,18 +1,42 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Header/>
+    <Sidebar
+      v-if="$store.state.showSidebar"
+    />
+    <keep-alive>
+      <router-view></router-view>
+    </keep-alive>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Header from './components/Header'
+import Sidebar from './components/Sidebar'
+import { db } from './firebase'
+import firebase from 'firebase'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
+    Header,
+    Sidebar
+  },
+  mounted() {
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        this.$store.commit('setUser', user)
+        db.collection('users').doc(user.uid).set({
+          name: user.displayName,
+          photoURL: user.photoURL,
+          email: user.email
+        })
+      } else {
+        console.log('user changed to', null)
+        this.$store.commit('setUser', null)
+      }
+    });
+  },
 }
 </script>
 
@@ -23,6 +47,13 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  background: #eee;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  padding-bottom: 5rem;
 }
 </style>
