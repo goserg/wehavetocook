@@ -1,10 +1,10 @@
 <template>
   <main>
+    <LoadingIndicator v-if="$store.state.loading"/>
     <Card
       v-for="recipe in $store.state.recipes"
       :key="recipe.id"
       :data="recipe.data()"
-      :selected="selected===recipe.id"
       @click="select(recipe.id)"
     >
     </Card>
@@ -23,21 +23,17 @@
 <script>
 import Card from '../components/Card'
 import Button from '../components/Button'
+import LoadingIndicator from '../components/LoadingIndicator'
 
 export default {
   data() {
-    return {
-      selected: null
-    }
+    return {}
   },
-  methods: {
-    select(id) {
-      this.selected = this.selected === id ? null : id
-    }
-  },
+  methods: {},
   components: {
     Card,
-    Button
+    Button,
+    LoadingIndicator
   },
   mounted() {
     this.$store.commit('updateRecipes')

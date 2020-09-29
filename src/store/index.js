@@ -8,15 +8,18 @@ export default new Vuex.Store({
   state: {
     user: null,
     showSidebar: false,
-    recipes: []
+    recipes: [],
+    loading: false
   },
   mutations: {
     updateRecipes(state) {
       state.recipes = []
+      state.loading = true
       db.collection('recipes').get().then(querySnapshot => {
         querySnapshot.forEach(doc => {
           state.recipes.push(doc)
         })
+        state.loading = false
       })
     },
     setUser(state, user) {
