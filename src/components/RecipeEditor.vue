@@ -1,6 +1,8 @@
 <template>
   <div class="recipe">
     <Container>
+      <h2 v-if="recipe==null">Новый рецепт</h2>
+      <h2 v-else>Редактировать</h2>
       <TextInput
         v-model="name"
         placeholder="Название рецепта"
@@ -14,6 +16,7 @@
       <h3>Загрузите картинку:</h3>
       <ImageInput
         @change="onFileSelected"
+        :image="mainImage"
       />
     </Container>
     <Container>
@@ -73,8 +76,17 @@
         @click="publish"
         fill
         :disabled="!readyToPublish"
+        v-if="!recipe"
       >
         Опубликовать
+      </Button>
+      <Button
+        @click="update"
+        fill
+        :disabled="!readyToPublish"
+        v-else
+      >
+        Редактировать
       </Button>
     </router-link>
     <router-link
@@ -82,6 +94,7 @@
     >
       <Button
         float
+        @click="clear"
       >
         <svg width="0.7em" viewBox="0 0 16 16" class="bi bi-house" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" d="M2 13.5V7h1v6.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7h1v6.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5zm11-11V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"/>
@@ -107,6 +120,35 @@ export default {
     ImageInput,
     TextInput
   },
+  props: {
+    recipe: Object,
+    recipe_id: String
+  },
+  watch: {
+    recipe(val) {
+      console.log(val)
+      if (val) {
+        this.name = val.name
+        this.time = val.time
+        this.ingredients = val.ingredients
+        this.steps = val.process
+        storage.ref().child(val.imgURL).getDownloadURL().then(url => {
+          this.mainImage = url
+        })
+      }
+    }
+  },
+  mounted() {
+    if (this.recipe) {
+      this.name = this.recipe.name
+      this.time = this.recipe.time
+      this.ingredients = this.recipe.ingredients
+      this.steps = this.recipe.process
+      storage.ref().child(this.recipe.imgURL).getDownloadURL().then(url => {
+        this.mainImage = url
+      })
+    }
+  },
   data() {
     return {
       name: '',
@@ -130,7 +172,6 @@ export default {
   methods: {
     deleteIngredient(index) {
       this.ingredients.splice(index, 1)
-      console.log(this.ingredients)
     },
     onInput(index, e) {
       this.steps[index] = e.target.innerHTML
@@ -148,12 +189,39 @@ export default {
           likes: [],
           dislikes: []
         })
+        this.clear()
         this.$store.commit('updateRecipes')
       })
     },
+    update() {
+      console.log(typeof this.mainImage)
+      fetch(this.mainImage).then(res => res.blob().then(blob => {
+        storage.ref().child('images/'+this.name).put(blob).then(() => {
+          db.collection('recipes').doc(this.recipe_id).set({
+            author: firebase.auth().currentUser.uid,
+            ingredients: this.ingredients,
+            imgURL: 'images/'+this.name,
+            name: this.name,
+            process: this.steps,
+            rating: 0,
+            time: this.time,
+            likes: [],
+            dislikes: []
+          })
+          this.clear()
+          this.$store.commit('updateRecipes')
+        })
+      }))
+    },
     onFileSelected(event) {
-      console.log(event)
       this.mainImage = event
+    },
+    clear() {
+      this.name = '',
+      this.time = '',
+      this.ingredients = [],
+      this.steps = [],
+      this.mainImage = null
     }
   }
 }

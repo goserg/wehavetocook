@@ -5,11 +5,11 @@
       v-for="recipe in $store.state.recipes"
       :key="recipe.id"
       :data="recipe.data()"
-      @click="select(recipe.id)"
+      :recipe_id="recipe.id"
     >
     </Card>
 
-    <router-link :to="{name: 'new'}">
+    <router-link :to="{name: 'editor'}">
       <Button
         float
         v-if="$store.state.user != null"

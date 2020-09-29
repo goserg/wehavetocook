@@ -1,6 +1,6 @@
 <template>
   <div class="image_input">
-    <img v-if="selectedImage" id="img" alt="главное фото блюда">
+    <img v-if="selectedImage" :src="selectedImage" alt="главное фото блюда">
     <Button @click="handleButton">
       {{selectedImage ? 'Другое изображение' : 'Выберите изображение'}}
     </Button>
@@ -20,6 +20,9 @@ export default {
   components: {
     Button
   },
+  props: {
+    image: String
+  },
   data() {
     return {
       selectedImage: null
@@ -28,19 +31,22 @@ export default {
   watch: {
     selectedImage(val) {
       this.$emit('change', val)
+    },
+    image() {
+      this.selectedImage = this.image
     }
   },
   methods: {
     handleButton() {
       document.querySelector('#input_file').click()
+      console.log(this.selectedImage)
     },
     onFileSelected(event) {
       let reader = new FileReader()
       let file = event.target.files[0]
-      this.selectedImage = file
       reader.readAsDataURL(file)
       reader.onload = () => {
-        document.querySelector('#img').src = reader.result
+        this.selectedImage = reader.result
       };
     }
   }

@@ -17,7 +17,7 @@
 export default {
   props: {
     placeholder: String,
-    value: String
+    value: [String, Number]
   }
 }
 </script>
