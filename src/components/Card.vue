@@ -15,9 +15,6 @@
         <div class="head_info_name">
           <span class="start">{{ data.name.slice(0, 2) }}</span>{{ data.name.slice(2) }}
         </div>
-        <Rating>
-          {{ data.rating }}
-        </Rating>
         <Time>
           {{ data.time }} мин.
         </Time>
@@ -39,7 +36,6 @@
 <script>
 import { storage } from '../firebase'
 
-import Rating from '../components/Rating'
 import Time from '../components/Time'
 
 export default {
@@ -64,7 +60,6 @@ export default {
     }
   },
   components: {
-    Rating,
     Time
   }
 }
@@ -89,12 +84,13 @@ export default {
     &_image {
       width: 75px;
       height: 75px;
+      object-fit: cover;
     }
 
     &_info {
-      display: grid;
-      grid-template-columns: min-content 1fr min-content;
-      grid-gap: 0.2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
       padding: 0 1rem;
       &_name {
         grid-column: 1/4;
