@@ -1,7 +1,7 @@
 <template>
   <router-link
     class="card"
-    :to="{name: 'recipe', params: {data: data, imgURL: url}}"
+    :to="{name: 'recipe', params: {data: data, imageURL: imageURL}}"
   >
     <div
       class="head"
@@ -9,7 +9,7 @@
     >
       <img
         class="head_image"
-        :src="url"
+        :src="imageURL"
       >
       <div class="head_info">
         <div class="head_info_name">
@@ -20,7 +20,7 @@
         </Time>
       </div>
     </div>
-    <router-link :to="{name: 'editor', params: {recipe: data, recipe_id: recipe_id}}">
+    <router-link :to="{name: 'editor', params: {recipe: data, recipe_id: recipe_id, imageURL: imageURL}}">
       <div
         class="author"
         v-if="$store.state.user && data.author == $store.state.user.uid"
@@ -45,19 +45,15 @@ export default {
   },
   data() {
     return {
-      url: ''
+      imageURL: ''
     }
   },
   methods: {
   },
   mounted() {
-    if (this.data.imgURL[0]=='i') {
-      storage.ref().child(this.data.imgURL).getDownloadURL().then(url => {
-        this.url = url
-      })
-    } else {
-      this.url = this.data.imgURL
-    }
+    storage.ref().child(this.data.imgURL).getDownloadURL().then(url => {
+      this.imageURL = url
+    })
   },
   components: {
     Time

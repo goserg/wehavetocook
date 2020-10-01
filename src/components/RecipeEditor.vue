@@ -14,9 +14,15 @@
     </Container>
     <Container>
       <h3>Загрузите картинку:</h3>
+      <img
+        v-if="!imageChanged"
+        class="old_img"
+        :src="imageURL"
+        alt="Изображение из базы данных"
+      >
       <ImageInput
         @change="onFileSelected"
-        :image="mainImage"
+        ref="imageInput"
       />
     </Container>
     <Container>
@@ -122,7 +128,8 @@ export default {
   },
   props: {
     recipe: Object,
-    recipe_id: String
+    recipe_id: String,
+    imageURL: String
   },
   watch: {
     recipe(val) {
@@ -144,9 +151,6 @@ export default {
       this.time = this.recipe.time
       this.ingredients = this.recipe.ingredients
       this.steps = this.recipe.process
-      storage.ref().child(this.recipe.imgURL).getDownloadURL().then(url => {
-        this.mainImage = url
-      })
     }
   },
   data() {
@@ -155,13 +159,15 @@ export default {
       time: '',
       ingredients: [],
       steps: [],
-      mainImage: null
+      mainImage: null,
+      imageChanged: false,
+      drawComponent: true
     }
   },
   computed: {
     readyToPublish() {
       return (
-        this.mainImage &&
+        (this.mainImage || !this.imageChanged) &&
         this.name &&
         this.time &&
         this.ingredients.length != 0 &&
@@ -194,34 +200,54 @@ export default {
       })
     },
     update() {
-      console.log(typeof this.mainImage)
-      fetch(this.mainImage).then(res => res.blob().then(blob => {
-        storage.ref().child('images/'+this.name).put(blob).then(() => {
-          db.collection('recipes').doc(this.recipe_id).set({
-            author: firebase.auth().currentUser.uid,
-            ingredients: this.ingredients,
-            imgURL: 'images/'+this.name,
-            name: this.name,
-            process: this.steps,
-            rating: 0,
-            time: this.time,
-            likes: [],
-            dislikes: []
+      if (this.imageChanged) {
+        fetch(this.mainImage).then(res => res.blob().then(blob => {
+          storage.ref().child('images/'+this.name).put(blob).then(() => {
+            db.collection('recipes').doc(this.recipe_id).set({
+              author: firebase.auth().currentUser.uid,
+              ingredients: this.ingredients,
+              imgURL: 'images/'+this.name,
+              name: this.name,
+              process: this.steps,
+              rating: 0,
+              time: this.time,
+              likes: [],
+              dislikes: []
+            })
+            this.clear()
+            this.$store.commit('updateRecipes')
           })
+        }))
+      } else {
+        db.collection('recipes').doc(this.recipe_id).set({
+          author: firebase.auth().currentUser.uid,
+          ingredients: this.ingredients,
+          imgURL: this.recipe.imgURL,
+          name: this.name,
+          process: this.steps,
+          rating: 0,
+          time: this.time,
+          likes: [],
+          dislikes: []
+        })
           this.clear()
           this.$store.commit('updateRecipes')
-        })
-      }))
+      }
     },
     onFileSelected(event) {
+      console.log(this.data)
+      console.log('image change', event)
       this.mainImage = event
+      this.imageChanged = true
     },
     clear() {
-      this.name = '',
-      this.time = '',
-      this.ingredients = [],
-      this.steps = [],
+      this.name = ''
+      this.time = ''
+      this.ingredients = []
+      this.steps = []
       this.mainImage = null
+      this.$refs.imageInput.reset()
+      this.imageChanged = false
     }
   }
 }
@@ -266,5 +292,9 @@ export default {
   .submit-container {
     margin: 1rem;
   }
+}
+.old_img {
+  height: auto;
+  width: 100%;
 }
 </style>

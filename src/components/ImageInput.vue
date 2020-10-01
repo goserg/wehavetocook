@@ -20,9 +20,6 @@ export default {
   components: {
     Button
   },
-  props: {
-    image: String
-  },
   data() {
     return {
       selectedImage: null
@@ -31,9 +28,6 @@ export default {
   watch: {
     selectedImage(val) {
       this.$emit('change', val)
-    },
-    image() {
-      this.selectedImage = this.image
     }
   },
   methods: {
@@ -48,6 +42,9 @@ export default {
       reader.onload = () => {
         this.selectedImage = reader.result
       };
+    },
+    reset() {
+      this.selectedImage = null
     }
   }
 }
