@@ -1,6 +1,6 @@
 <template>
   <div class="detailed">
-    <img class="detailed_image" :src="imgURL" alt="картинка">
+    <img class="detailed_image" :src="imageURL" alt="картинка">
     <div class="detailed_stats">
       <div class="detailed_stats_author">
         <img :src="authorImg" alt="аватар автора">
@@ -62,7 +62,21 @@ export default {
   },
   props: {
     data: Object,
-    imgURL: String
+    imageURL: String
+  },
+  watch: {
+    data() {
+      db.collection('users').doc(this.data.author).get().then(doc => {
+          if (doc.exists) {
+            this.authorImg = doc.data().photoURL
+          } else {
+              // doc.data() will be undefined in this case
+              console.log("No such document!")
+          }
+      }).catch(function(error) {
+          console.log("Error getting document:", error)
+      })
+    }
   },
   mounted() {
     db.collection('users').doc(this.data.author).get().then(doc => {
