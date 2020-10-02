@@ -33,7 +33,6 @@ export default {
   methods: {
     handleButton() {
       document.querySelector('#input_file').click()
-      console.log(this.selectedImage)
     },
     onFileSelected(event) {
       let reader = new FileReader()

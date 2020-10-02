@@ -13,13 +13,14 @@
       />
     </Container>
     <Container>
-      <h3>Загрузите картинку:</h3>
       <img
-        v-if="!imageChanged"
+        v-if="recipe"
         class="old_img"
         :src="imageURL"
         alt="Изображение из базы данных"
       >
+      <h3 v-if="recipe">Заменить картинку:</h3>
+      <h3 v-else>Загрузите картинку:</h3>
       <ImageInput
         @change="onFileSelected"
         ref="imageInput"
@@ -133,7 +134,6 @@ export default {
   },
   watch: {
     recipe(val) {
-      console.log(val)
       if (val) {
         this.name = val.name
         this.time = val.time
@@ -235,8 +235,6 @@ export default {
       }
     },
     onFileSelected(event) {
-      console.log(this.data)
-      console.log('image change', event)
       this.mainImage = event
       this.imageChanged = true
     },
