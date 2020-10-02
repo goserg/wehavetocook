@@ -22,7 +22,7 @@
         v-for="(step, i) in data.process"
         :key="step + i"
       >
-        {{i}}. {{step}}
+        {{i + 1}}. {{step}}
       </p>
     </div>
     <router-link

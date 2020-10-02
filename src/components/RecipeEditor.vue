@@ -209,10 +209,7 @@ export default {
               imgURL: 'images/'+this.name,
               name: this.name,
               process: this.steps,
-              rating: 0,
-              time: this.time,
-              likes: [],
-              dislikes: []
+              time: this.time
             })
             this.clear()
             this.$store.commit('updateRecipes')
@@ -225,10 +222,7 @@ export default {
           imgURL: this.recipe.imgURL,
           name: this.name,
           process: this.steps,
-          rating: 0,
-          time: this.time,
-          likes: [],
-          dislikes: []
+          time: this.time
         })
           this.clear()
           this.$store.commit('updateRecipes')
